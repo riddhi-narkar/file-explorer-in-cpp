@@ -1,7 +1,12 @@
 #include <iostream>
 #include <string>
+#include <cstring>  // for strerror
+#include <cstdlib>  // for access
+#include <unistd.h> // for access, F_OK
 #include <dirent.h>
-#include <unistd.h>
+#include <sys/stat.h> // for stat
+#include <fcntl.h> // for open
+#include <termios.h> // for termios related functionality
 #include "normal_mode.h"
 #include "file_operations.h"
 
@@ -14,21 +19,19 @@ void normal_mode(const std::string &current_path) {
     while (std::cin >> ch && ch != 'q') {
         switch (ch) {
             case 'o':
-                open_selected(path);
+                open_selected(path); // Call open_selected for manual input
+                break;
+            case '\n': // Enter key pressed
+                open_selected(path, true); // Call open_selected for enter key press
                 break;
             case 'h':
-                navigate(path, 'h');
-                break;
             case 'j':
-                navigate(path, 'j');
-                break;
             case 'k':
-                navigate(path, 'k');
-                break;
             case 'l':
-                navigate(path, 'l');
+                navigate(path, ch);
                 break;
             default:
+                handle_arrow_keys(path, ch); // Handle arrow key inputs
                 break;
         }
         list_files(path);
@@ -52,21 +55,37 @@ void list_files(const std::string &path) {
     closedir(dir);
 }
 
-void open_selected(const std::string &path) {
-    std::string selected_file;
-    std::cout << "Enter the file name to open: ";
-    std::cin >> selected_file;
+void open_selected(const std::string &path, bool from_enter_key) {
+    std::string selected_item;
 
-    std::string full_path = path + "/" + selected_file;
-
-    if (access(full_path.c_str(), F_OK) == -1) {
-        std::cout << "File does not exist.\n";
-        return;
+    if (!from_enter_key) {
+        std::cout << "Enter the directory or file name to open: ";
+        std::cin >> selected_item;
+    } else {
+        std::cout << "Enter the directory or file name to open (press Enter): ";
+        std::cin.ignore(); // Clear any remaining newline characters from previous input
+        std::getline(std::cin, selected_item); // Read entire line to handle spaces in names
     }
 
-    std::cout << "Opening file: " << full_path << std::endl;
-    // Here you could add the logic to actually open the file
-    // For now, it just prints a message
+    std::string full_path = path + "/" + selected_item;
+
+    struct stat stat_buf;
+    if (stat(full_path.c_str(), &stat_buf) == 0) {
+        if (S_ISDIR(stat_buf.st_mode)) {
+            // Clear screen (not implemented here)
+            std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence to clear screen
+            std::cout << "Opening directory: " << full_path << std::endl;
+            list_files(full_path); // Display contents of the directory
+        } else if (S_ISREG(stat_buf.st_mode)) {
+            std::cout << "Opening file in vim: " << full_path << std::endl;
+            // Here you could call a function to open the file in vim
+            // For now, it just prints a message
+        } else {
+            std::cout << "Unknown file type.\n";
+        }
+    } else {
+        std::cerr << "Error accessing file or directory: " << strerror(errno) << std::endl;
+    }
 }
 
 void navigate(std::string &path, char ch) {
@@ -96,12 +115,47 @@ void navigate(std::string &path, char ch) {
             }
             break;
         }
-        // For simplicity, 'j' and 'k' will not change directories in this example
+        // 'j' and 'k' will not change directories in this example
         case 'j':
             std::cout << "Scroll down (not implemented)\n";
             break;
         case 'k':
             std::cout << "Scroll up (not implemented)\n";
+            break;
+        default:
+            break;
+    }
+}
+
+void handle_arrow_keys(std::string &path, char first_char) {
+    if (first_char != '\033') // Check if the first character is an escape sequence
+        return;
+
+    char second_char;
+    std::cin >> second_char; // Read the second character of the escape sequence
+
+    if (second_char != '[') // Check if it is the expected second character
+        return;
+
+    char third_char;
+    std::cin >> third_char; // Read the third character of the escape sequence
+
+    switch (third_char) {
+        case 'A': // Up arrow key
+            std::cout << "Up arrow key pressed\n";
+            // Implement your logic here for up arrow key
+            break;
+        case 'B': // Down arrow key
+            std::cout << "Down arrow key pressed\n";
+            // Implement your logic here for down arrow key
+            break;
+        case 'C': // Right arrow key
+            std::cout << "Right arrow key pressed\n";
+            // Implement your logic here for right arrow key
+            break;
+        case 'D': // Left arrow key
+            std::cout << "Left arrow key pressed\n";
+            // Implement your logic here for left arrow key
             break;
         default:
             break;
