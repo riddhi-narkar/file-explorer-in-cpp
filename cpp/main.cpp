@@ -13,14 +13,16 @@ int main() {
         if (mode == 'n') {
             normal_mode(current_path);
 
-            // Check if user wants to switch to command mode
+            // After normal_mode completes, check for colon (:) to switch to command mode
             std::cout << "Press ':' to enter command mode or 'q' to quit: ";
             char input;
             std::cin >> input;
+
             if (input == ':') {
-                mode = 'c';
+                mode = 'c'; // Switch to command mode
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
             } else if (input == 'q') {
-                running = false;
+                running = false; // Quit the application
             }
         } else if (mode == 'c') {
             command_mode(current_path);

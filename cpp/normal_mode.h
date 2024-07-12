@@ -2,12 +2,15 @@
 #define NORMAL_MODE_H
 
 #include <string>
-using namespace std;
+#include <vector>
 
-void normal_mode(const string &current_path);
-void list_files(const string &path);
-void open_selected(const std::string &path, bool from_enter_key = false);
-void navigate(string &path, char ch);
-void handle_arrow_keys(std::string &path, char ch);
+void normal_mode(const std::string &current_path);
+void list_files(const std::string &path);
+void open_selected(std::string &path, bool from_enter_key = false);
+void navigate(std::string &path, char ch);
+void handle_arrow_keys(std::string &path, char first_char);
 
-#endif
+extern std::vector<std::string> back_stack;
+extern std::vector<std::string> forward_stack;
+
+#endif // NORMAL_MODE_H

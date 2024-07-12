@@ -2,8 +2,7 @@
 #define COMMAND_MODE_H
 
 #include <string>
-using namespace std;
 
-void command_mode(const string &current_path);
+void command_mode(const std::string &current_path);
 
-#endif
+#endif // COMMAND_MODE_H
