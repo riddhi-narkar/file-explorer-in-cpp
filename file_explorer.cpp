@@ -9,8 +9,7 @@
 #include <termios.h> // for the arrow key input
 #include <pwd.h>    // For getpwuid
 #include <grp.h>    // For getgrgid
-#include "normal_mode.h"
-#include "file_operations.h"
+#include "file_explorer.h"
 
 // Stack to store the navigation history
 std::vector<std::string> back_stack;
@@ -73,7 +72,7 @@ void list_files(const std::string &path) {
     closedir(dir);
 }
 
-void normal_mode(const std::string &current_path) {
+void explorer(const std::string &current_path) {
     std::string path = current_path;
 
     list_files(path);

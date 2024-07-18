@@ -1,13 +1,13 @@
 #include <iostream>
 #include <string>
-#include "normal_mode.h"
+#include "file_explorer.h"
 
 int main() {
     std::string current_path = "/"; // Starting path is the root directory
     bool running = true;
 
     while (running) {
-        normal_mode(current_path);
+        explorer(current_path);
 
         // After normal_mode completes, check for 'q' to quit
         std::cout << "Press 'q' to quit or any other key to refresh: ";
