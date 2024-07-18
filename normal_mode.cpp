@@ -87,9 +87,6 @@ void normal_mode(const std::string &current_path) {
             case '\n': // Enter key pressed
                 open_selected(path, true); // Call open_selected for enter key press
                 break;
-            case 'h':
-            case 'j':
-            case 'k':
             case 'l':
                 navigate(path, ch);
                 break;
@@ -162,13 +159,6 @@ void navigate(std::string &path, char ch) {
             }
             break;
         }
-        // 'j' and 'k' will not change directories in this example
-        case 'j':
-            std::cout << "Scroll down (not implemented)\n";
-            break;
-        case 'k':
-            std::cout << "Scroll up (not implemented)\n";
-            break;
         default:
             break;
     }
