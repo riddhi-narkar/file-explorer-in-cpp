@@ -1,9 +1,10 @@
 #include <iostream>
 #include <string>
 #include "file_explorer.h"
+using namespace std;
 
 int main() {
-    std::string current_path = "/"; // Starting path is the root directory
+    string current_path = "/"; // Starting path is the root directory
     bool running = true;
 
     while (running) {

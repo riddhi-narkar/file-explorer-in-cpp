@@ -6,7 +6,7 @@
 
 void explorer(const std::string &current_path);
 void list_files(const std::string &path);
-void open_selected(std::string &path, bool from_enter_key = false);
+// void open_selected(std::string &path, bool from_enter_key = false);
 void navigate(std::string &path, char ch);
 void handle_arrow_keys(std::string &path, char first_char);
 

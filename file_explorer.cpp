@@ -49,13 +49,13 @@ void list_files(const std::string &path) {
         std::string permissions;
 
         permissions += (S_ISDIR(file_stat.st_mode)) ? 'd' : '-';
-        permissions += (file_stat.st_mode & S_IRUSR) ? 'r' : '-';
-        permissions += (file_stat.st_mode & S_IWUSR) ? 'w' : '-';
-        permissions += (file_stat.st_mode & S_IXUSR) ? 'x' : '-';
-        permissions += (file_stat.st_mode & S_IRGRP) ? 'r' : '-';
+        permissions += (file_stat.st_mode & S_IRUSR) ? 'r' : '-'; // USERS ://read permissions
+        permissions += (file_stat.st_mode & S_IWUSR) ? 'w' : '-'; //write permissions
+        permissions += (file_stat.st_mode & S_IXUSR) ? 'x' : '-'; // execute permissions
+        permissions += (file_stat.st_mode & S_IRGRP) ? 'r' : '-'; //GROUPS
         permissions += (file_stat.st_mode & S_IWGRP) ? 'w' : '-';
         permissions += (file_stat.st_mode & S_IXGRP) ? 'x' : '-';
-        permissions += (file_stat.st_mode & S_IROTH) ? 'r' : '-';
+        permissions += (file_stat.st_mode & S_IROTH) ? 'r' : '-'; //OTHERS
         permissions += (file_stat.st_mode & S_IWOTH) ? 'w' : '-';
         permissions += (file_stat.st_mode & S_IXOTH) ? 'x' : '-';
 
@@ -81,12 +81,9 @@ void explorer(const std::string &current_path) {
     while (std::cin >> ch && ch != 'q') {
         switch (ch) {
             case 'o':
-                open_selected(path); // Call open_selected for manual input
+                navigate(path, ch);
                 break;
-            case '\n': // Enter key pressed
-                open_selected(path, true); // Call open_selected for enter key press
-                break;
-            case 'l':
+            case 'h':
                 navigate(path, ch);
                 break;
             default:
@@ -97,44 +94,8 @@ void explorer(const std::string &current_path) {
     }
 }
 
-void open_selected(std::string &path, bool from_enter_key) {
-    std::string selected_item;
-
-    if (!from_enter_key) {
-        std::cout << "Enter the directory or file name to open: ";
-        std::cin >> selected_item;
-    } else {
-        std::cout << "Enter the directory or file name to open (press Enter): ";
-        std::cin.ignore(); // Clear any remaining newline characters from previous input
-        std::getline(std::cin, selected_item); // Read entire line to handle spaces in names
-    }
-
-    std::string full_path = path + "/" + selected_item;
-
-    struct stat stat_buf;
-    if (stat(full_path.c_str(), &stat_buf) == 0) {
-        if (S_ISDIR(stat_buf.st_mode)) {
-            // Clear screen (not implemented here)
-            std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence to clear screen
-            std::cout << "Opening directory: " << full_path << std::endl;
-            back_stack.push_back(path); // Push the current path to back stack
-            path = full_path; // Update path to the new directory
-
-            // Clear the forward stack
-            forward_stack.clear();
-        } else if (S_ISREG(stat_buf.st_mode)) {
-            std::cout << "Opening file in vim: " << full_path << std::endl;
-            // Here you could call a function to open the file in vim
-            // For now, it just prints a message
-        } else {
-            std::cout << "Unknown file type.\n";
-        }
-    } else {
-        std::cerr << "Error accessing file or directory: " << strerror(errno) << std::endl;
-    }
-}
-
-void navigate(std::string &path, char ch) {
+void navigate(std::string &path, char ch)
+{
     std::string home_directory = getenv("HOME"); // Get the user's home directory
     std::string new_path;
 
@@ -145,7 +106,7 @@ void navigate(std::string &path, char ch) {
                 path = home_directory; // Navigate to home directory
             }
             break;
-        case 'l': {
+        case 'o': {
             std::string dir_name;
             std::cout << "Enter directory name to navigate into: ";
             std::cin >> dir_name;
@@ -163,7 +124,8 @@ void navigate(std::string &path, char ch) {
     }
 }
 
-void handle_arrow_keys(std::string &path, char first_char) {
+void handle_arrow_keys(std::string &path, char first_char)
+{
     if (first_char != '\033') // Check if the first character is an escape sequence
         return;
 
